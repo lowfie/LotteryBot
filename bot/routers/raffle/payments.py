@@ -1,21 +1,8 @@
-from aiogram import Bot, Router, F
-from aiogram.types import (
-    Message,
-    LabeledPrice,
-    PreCheckoutQuery,
-    CallbackQuery,
-    ContentType,
-)
+from aiogram import Router
+from aiogram.types import CallbackQuery
 
 from bot.keyboards.inline.raffle import back_to_raffle_menu
 from bot.keyboards.inline.payments import payment_methods, amount_money
-
-from app.database.models import Raffle, User
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, insert
-
-from settings import UKASSA_PAYMENT
 
 
 payment_raffle = Router()
@@ -36,45 +23,9 @@ async def choose_payment(call: CallbackQuery):
     )
 
 
-@payment_raffle.callback_query(lambda call: call.data.split(":")[0] == "UMoney")
-async def send_payment_methods(call: CallbackQuery, bot: Bot) -> None:
-    await call.message.delete()
-    price = int(call.data.split(":")[1])
-    await bot.send_invoice(
-        chat_id=call.from_user.id,
-        title="Участие в розыгрыше",
-        description="Ваша удача - в ваших руках. Чем больше ваше пополнение, тем больше шанс на победу!",
-        photo_size=416,
-        payload=call.data,
-        provider_token=UKASSA_PAYMENT,
-        currency="rub",
-        prices=[LabeledPrice(label="Test label", amount=price * 100)],
-    )
-
-
 @payment_raffle.callback_query(lambda call: call.data.split(":")[0] == "Crypto")
-async def send_payment_methods(call: CallbackQuery, bot: Bot) -> None:
+async def send_payment_methods(call: CallbackQuery) -> None:
     await call.message.delete()
     await call.message.answer(
         "<b>Временно недоступно</b>", reply_markup=await back_to_raffle_menu()
-    )
-
-
-@payment_raffle.pre_checkout_query(lambda query: True)
-async def pre_checkout_query(checkout: PreCheckoutQuery, bot: Bot):
-    await bot.answer_pre_checkout_query(checkout.id, ok=True)
-
-
-@payment_raffle.message(F.content_type == ContentType.SUCCESSFUL_PAYMENT)
-async def successful_payment(message: Message, session: AsyncSession):
-    user_id = (
-        await session.execute(
-            select(User.id).where(User.tg_id.__eq__(message.from_user.id))
-        )
-    ).scalar()
-    await session.execute(insert(Raffle).values(user_id=user_id, donated=100))
-    await session.commit()
-
-    await message.answer(
-        text="Поздравляем!\nВы участник!", reply_markup=await back_to_raffle_menu()
     )
