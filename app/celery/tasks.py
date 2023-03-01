@@ -2,7 +2,7 @@ import asyncio
 
 from bot.const.phrases import phrase_of_daily_draw
 from app.celery.init import celery_app
-from app.celery.raffle import random_winner
+from app.celery.logic.raffle import random_winner
 
 
 @celery_app.task
@@ -13,7 +13,7 @@ def send_message_everyone_task(chat_id: int, text: str) -> None:
 
 
 @celery_app.task
-def send_message_to_admins() -> None:
+def notification_daily_drawing() -> None:
     from bot.bot import bot
     loop = asyncio.get_event_loop()
     value = loop.run_until_complete(random_winner())
