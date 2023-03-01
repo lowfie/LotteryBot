@@ -9,6 +9,7 @@ from aiogram.types import (
 from bot.keyboards.inline.raffle import set_raffle_menu, back_to_raffle_menu
 from bot.routers.raffle.payments import payment_raffle
 from bot.routers.raffle.winner import winner_raffle
+from bot.const.phrases import phrase_current_prize
 
 from app.database.models import Raffle
 
@@ -33,8 +34,8 @@ async def main_raffle_menu(message: Message or CallbackQuery) -> Union[Message, 
 @raffle_router.callback_query(lambda call: call.data == "current_prize")
 async def send_current_prize(call: CallbackQuery, session: AsyncSession):
     prize = (await session.execute(select(func.sum(Raffle.donated)))).scalar()
-    prize = 0 if prize is None else prize
+    prize = 0 if prize is None else float(prize)
     await call.message.edit_text(
-        f"<b>Текущий банк:</b> {prize}₽",
+        text=await phrase_current_prize(prize),
         reply_markup=await back_to_raffle_menu()
     )

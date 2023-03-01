@@ -13,3 +13,34 @@ async def phrase_of_daily_draw(data: dict) -> str:
     else:
         text = "Участники отсутствуют!"
     return text
+
+
+async def back_to_main_menu() -> str:
+    text = "Вы вернулись в главное меню!"
+    return text
+
+
+async def list_winners_of_daily_drawing(winners) -> str:
+    if winners:
+        winners_text = "".join(f"{num}. @{winner[0]} — {winner[1]}₽\n" for num, winner in enumerate(winners, start=1))
+    else:
+        winners_text = "Пока никто не победил"
+    text = f"<b>Список последних 10 победителей:</b> \n\n{winners_text}\n"
+    return text
+
+
+async def phrase_current_prize(prize: float) -> str:
+    text = f"<b>Текущий банк:</b> {prize}₽"
+    return text
+
+
+async def phrase_enter_payment_amount() -> str:
+    text = "<b>Введите сумму оплаты</b>\n\n<i>Чем больше сумма, тем больше шанс</i>"
+    return text
+
+
+async def phrase_choose_payment_method() -> str:
+    text = "Выберете способ оплаты"
+    return text
+
+

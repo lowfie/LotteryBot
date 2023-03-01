@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import desc, select
 
 from app.database.models import Winner, User
+from bot.const.phrases import list_winners_of_daily_drawing
 from bot.keyboards.inline.raffle import back_to_raffle_menu
 
 
@@ -19,12 +20,8 @@ async def show_winners(call: CallbackQuery, session: AsyncSession) -> None:
         .order_by(desc(Winner.date_of_victory))
         .limit(10)
     )).all()
-    if winners:
-        winner_list = "".join(f"{num}. @{winner[0]} — {winner[1]}₽\n" for num, winner in enumerate(winners, start=1))
-    else:
-        winner_list = "Пока никто не победил"
 
     await call.message.edit_text(
-        text=f"<b>Список последних 10 победителей:</b> \n\n{winner_list}\n",
+        text=await list_winners_of_daily_drawing(winners),
         reply_markup=await back_to_raffle_menu()
     )
