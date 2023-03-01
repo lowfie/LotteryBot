@@ -14,7 +14,7 @@ celery_app = Celery(
 celery_app.conf.beat_schedule = {
     'add-everyday-12-hour-30-minute': {
         'task': 'app.celery.tasks.send_message_to_admins',
-        'schedule': crontab(hour=9)   # timezone: utc
+        'schedule': crontab(hour=12-3)   # timezone: utc
     },
 }
 
