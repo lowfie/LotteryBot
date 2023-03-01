@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from bot.keyboards.reply.main_menu import user_main_markup
-from bot.const import phrases
+from bot.const.phrases import phrase_for_start_first_greeting, back_to_main_menu
 from app.database.models import User
 from app.serializers import UserSerializer
 from settings import APP_HOSTNAME
@@ -42,7 +42,7 @@ async def start(message: Message, bot: Bot, session: AsyncSession):
         )
 
     await message.answer(
-        text=await phrases.phrase_for_start_first_greeting(message.from_user.first_name),
+        text=await phrase_for_start_first_greeting(message.from_user.first_name),
         reply_markup=await user_main_markup()
     )
 
@@ -51,6 +51,6 @@ async def start(message: Message, bot: Bot, session: AsyncSession):
 @base_commands.message(F.text == "Назад")
 async def raffle_set_menu(message: Message) -> None:
     await message.answer(
-        text="Вы вернулись в главное меню!",
+        text=await back_to_main_menu(),
         reply_markup=await user_main_markup()
     )
