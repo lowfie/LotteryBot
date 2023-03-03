@@ -2,8 +2,15 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 
 from bot.keyboards.inline.raffle import back_to_raffle_menu
-from bot.keyboards.inline.payments import payment_methods, amount_money
-from bot.const.phrases import phrase_enter_payment_amount, phrase_choose_payment_method
+from bot.keyboards.inline.payments import (
+    payment_methods,
+    amount_money,
+    yoomoney_check_payment
+)
+from bot.const.phrases import (
+    phrase_enter_payment_amount,
+    phrase_choose_payment_method
+)
 
 
 payment_raffle = Router()
@@ -22,6 +29,14 @@ async def choose_payment(call: CallbackQuery):
     await call.message.edit_text(
         text=await phrase_choose_payment_method(),
         reply_markup=await payment_methods(call.data)
+    )
+
+
+@payment_raffle.callback_query(lambda call: call.data.split(":")[0] == "UMoney")
+async def send_payment_methods(call: CallbackQuery) -> None:
+    await call.message.edit_text(
+        "Совершите оплату и проверьте её!",
+        reply_markup=await yoomoney_check_payment(call.data)
     )
 
 
