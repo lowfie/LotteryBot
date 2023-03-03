@@ -4,18 +4,32 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from libs.yoomoney.quickpay.quickpay import Quickpay
 
 
-async def payment_methods(amount: str) -> InlineKeyboardMarkup:
+async def yoomoney_check_payment(callback: str) -> InlineKeyboardMarkup:
+    amount = float(callback.split(":")[1])
     quickpay = Quickpay(
         receiver="410019014512803",
         quickpay_form="shop",
         targets="Sponsor this project",
         paymentType="SB",
-        sum=float(amount[1:])
+        sum=amount
     )
-
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="ЮMoney", url=str(quickpay.redirected_url), callback_data="UMoney" + amount),
+        InlineKeyboardButton(text="Оплатить", url=str(quickpay.redirected_url), callback_data=callback + ":pay"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="Проверить оплату", callback_data="yoomoney_check")
+    )
+    builder.row(
+        InlineKeyboardButton(text="Назад", callback_data="back_raffle")
+    )
+    return builder.as_markup(resize_keyboard=True)
+
+
+async def payment_methods(amount: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="ЮMoney", callback_data="UMoney" + amount),
         InlineKeyboardButton(text="Крипта", callback_data="Crypto" + amount)
     )
     builder.row(
