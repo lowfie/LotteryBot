@@ -7,9 +7,10 @@ from aiogram.types import (
 )
 
 from bot.keyboards.inline.raffle import set_raffle_menu, back_to_raffle_menu
-from bot.routers.raffle.payments import payment_raffle
-from bot.routers.raffle.winner import winner_raffle
 from bot.const.phrases import phrase_current_prize
+from bot.routers.raffle.yoomoney_payment import yoo_payment
+from bot.routers.raffle.winner import winner_raffle
+from bot.routers.raffle.crypto_payment import crypto_payment
 
 from app.database.models import Raffle
 
@@ -18,8 +19,9 @@ from sqlalchemy import select, func
 
 
 raffle_router = Router()
-raffle_router.include_router(payment_raffle)
+raffle_router.include_router(yoo_payment)
 raffle_router.include_router(winner_raffle)
+raffle_router.include_router(crypto_payment)
 
 
 @raffle_router.message(F.text == "Розыгрыш")
