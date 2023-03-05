@@ -1,18 +1,18 @@
+import uuid
+
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from libs.yoomoney.quickpay.quickpay import Quickpay
-
-import uuid
 
 
 async def yoomoney_check_payment(callback: str) -> InlineKeyboardMarkup:
     amount = float(callback.split(":")[1])
     label_payment_uuid = str(uuid.uuid1())
     quickpay = Quickpay(
-        receiver="410019014512803",
+        receiver="4100118106444704",
         quickpay_form="shop",
-        targets="Sponsor this project",
+        targets="Take part in this drawing",
         paymentType="SB",
         sum=amount,
         label=label_payment_uuid
@@ -22,15 +22,12 @@ async def yoomoney_check_payment(callback: str) -> InlineKeyboardMarkup:
         InlineKeyboardButton(
             text="Оплатить",
             url=str(quickpay.redirected_url),
-            callback_data=callback + f":pay"),
+            callback_data="yoomoney_payment_detect")
     )
     builder.row(
         InlineKeyboardButton(
-            text="Проверить оплату",
+            text="Подтвердить оплату",
             callback_data=f"yoomoney_check:{label_payment_uuid}")
-    )
-    builder.row(
-        InlineKeyboardButton(text="Назад", callback_data="back_raffle")
     )
     return builder.as_markup(resize_keyboard=True)
 
@@ -39,7 +36,7 @@ async def payment_methods(amount: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="ЮMoney", callback_data="UMoney" + amount),
-        InlineKeyboardButton(text="Крипта", callback_data="Crypto" + amount)
+        # InlineKeyboardButton(text="Крипта", callback_data="Crypto" + amount)
     )
     builder.row(
         InlineKeyboardButton(text="Назад", callback_data="back_raffle")
