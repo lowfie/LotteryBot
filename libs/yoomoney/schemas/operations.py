@@ -6,13 +6,14 @@ from pydantic import BaseModel
 class Operation(BaseModel):
     operation_id: str = None
     status: str = None
-    datetime: Optional[datetime] = None
+    datetime: str = None
     title: str = None
     pattern_id: str = None
     direction: str = None
     amount: float = None
     label: str = None
     operation_type: str = None
+    type: str = None
 
 
 class Payload(BaseModel):
