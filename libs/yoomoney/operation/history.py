@@ -50,6 +50,8 @@ class History:
         data = self._request()
         if "error" in data:
             raise ValueError(data)
+        elif "" in data:
+            raise ValueError("Invalid token")
         self.next_record = data["next_record"] if "next_record" in data else None
 
         self.operations = list()
