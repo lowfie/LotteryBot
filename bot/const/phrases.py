@@ -30,7 +30,8 @@ async def list_winners_of_daily_drawing(winners) -> str:
 
 
 async def phrase_current_prize(prize: float) -> str:
-    text = f"<b>Текущий банк:</b> {prize}₽"
+    prize_fix = float("{0:.2f}".format(prize))
+    text = f"<b>Текущий банк:</b> {prize_fix}₽"
     return text
 
 
@@ -44,3 +45,11 @@ async def phrase_choose_payment_method() -> str:
     return text
 
 
+async def phrase_making_payment() -> str:
+    text = "Совершите оплату и проверьте её!"
+    return text
+
+
+async def phrase_participation_in_drawing() -> str:
+    text = "Поздравляем, вы участвуете в розыгрыше!\nВы можете пополнить счёт и увеличить свой шанс."
+    return text
