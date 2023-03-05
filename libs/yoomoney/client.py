@@ -3,12 +3,11 @@ from libs.yoomoney.operation.history import History
 
 
 class Client:
-    def __init__(self, token: str = None, base_url: str = None):
+    def __init__(self, token: str, base_url: str = None):
         if base_url is None:
             self.base_url = "https://yoomoney.ru/api/"
 
-        if token is not None:
-            self.token = token
+        self.token = token
 
     def operation_history(
             self,
