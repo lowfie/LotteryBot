@@ -1,4 +1,5 @@
 import httpx
+from libs.yoomoney.schemas.quickpay import Payload
 
 
 class Quickpay:
@@ -37,26 +38,25 @@ class Quickpay:
 
     def _request(self):
         self.base_url = "https://yoomoney.ru/quickpay/confirm.xml?"
-        payload = {
-            "receiver": self.receiver,
-            "quickpay_form": self.quickpay_form,
-            "targets": self.targets,
-            "paymentType": self.paymentType,
-            "sum": self.sum,
-            "formcomment": None if self.formcomment is None else self.formcomment,
-            "short_dest": None if self.short_dest is None else self.short_dest,
-            "label": None if self.label is None else self.label,
-            "comment": None if self.comment is None else self.comment,
-            "successURL": None if self.successURL is None else self.successURL,
-            "need_fio": None if self.need_fio is None else self.need_fio,
-            "need_email": None if self.need_email is None else self.need_email,
-            "need_phone": None if self.need_phone is None else self.need_phone,
-            "need_address": None if self.need_address is None else self.need_address
-        }
-        for key, value in payload.items():
-            if value is not None:
-                self.base_url += key.replace("_", "-") + "=" + str(value)
-                self.base_url += "&"
+        payload = Payload(
+            receiver=self.receiver,
+            quickpay_form=self.quickpay_form,
+            targets=self.targets,
+            paymentType=self.paymentType,
+            sum=self.sum,
+            formcomment=self.formcomment,
+            short_dest=self.short_dest,
+            label=self.label,
+            comment=self.comment,
+            successURL=self.successURL,
+            need_fio=self.need_fio,
+            need_email=self.need_email,
+            need_phone=self.need_phone,
+            need_address=self.need_address
+        )
+        for key, value in payload.dict(exclude_none=True).copy().items():
+            self.base_url += key.replace("_", "-") + "=" + str(value)
+            self.base_url += "&"
         self.base_url = self.base_url[:-1].replace(" ", "%20")
 
         response = httpx.post(self.base_url)
