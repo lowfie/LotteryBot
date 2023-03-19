@@ -12,8 +12,4 @@ RUN python -m pip install --upgrade pip
 COPY /requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
-RUN adduser --disabled-password --no-create-home app
-
 ENV PYTHONPATH=${PYTHONPATH}:/bot
-
-USER app
