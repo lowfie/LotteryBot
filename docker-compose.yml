@@ -9,7 +9,10 @@ services:
       context: .
       dockerfile: Dockerfile
     command: >
-      bash -c "python main.py"
+      bash -c "alembic stamp head --purge &&
+               alembic revision --autogenerate &&
+               alembic upgrade head &&
+               python main.py"
     ports:
       - 80:8000
     volumes:
