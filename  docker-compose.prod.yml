@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  bot:
+    image: telegram-bot
+    container_name: telegram-bot
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      bash -c "alembic stamp head --purge &&
+               alembic revision --autogenerate &&
+               alembic upgrade head &&
+               python main.py"
+    ports:
+      - 80:8000
+    volumes:
+      - .:/bot
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - local
+
+  celery_worker:
+    container_name: telegram-bot-celery-worker
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      bash -c "celery -A app.celery.init:celery_app worker --loglevel=info"
+    volumes:
+      - .:/bot
+    env_file:
+      - .env
+    depends_on:
+      - bot
+      - redis
+      - rabbitmq
+    networks:
+      - local
+
+  celery_beat:
+    container_name: telegram-bot-celery-beat
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      bash -c "celery -A app.celery.init:celery_app beat --loglevel=info"
+    volumes:
+      - .:/bot
+    env_file:
+      - .env
+    depends_on:
+      - bot
+      - redis
+      - rabbitmq
+    networks:
+      - local
+
+  flower:
+    container_name: telegram-bot-flower
+    restart: unless-stopped
+    build:
+      context: .
+    command: >
+      bash -c "celery -A app.celery.init:celery_app flower --port=5555"
+    ports:
+      - 5555:5555
+    volumes:
+      - .:/bot
+    environment:
+      - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      - CELERY_RESULT_BACKEND=redis://${REDIS_HOST}:${REDIS_PORT}/0
+    depends_on:
+      - celery_worker
+      - redis
+      - rabbitmq
+    networks:
+      - local
+
+  redis:
+    image: redis:latest
+    container_name: telegram-bot-redis
+    restart: unless-stopped
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    expose:
+      - ${REDIS_PORT}
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/var/lib/redis
+    env_file:
+      - .env
+    networks:
+      - local
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: telegram-bot-rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - 1${RABBITMQ_PORT}:1${RABBITMQ_PORT}
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+    env_file:
+      - .env
+    networks:
+      - local
+
+volumes:
+  redis:
+
+
+networks:
+  local:
+    driver: bridge
